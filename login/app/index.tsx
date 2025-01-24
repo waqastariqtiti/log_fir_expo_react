@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Image, View, Animated } from 'react-native';
-import { router, Router } from 'expo-router';
+import { useRouter } from 'expo-router'; // Make sure to import the useRouter hook
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const logo = require('../assets/images/logo.png');
 
 const Index = () => {
+  const router = useRouter();
   const scaleAnim = new Animated.Value(1); // Start at normal size (scale 1)
 
   useEffect(() => {
@@ -14,10 +16,17 @@ const Index = () => {
       duration: 2000, // 2 seconds animation
       useNativeDriver: true,
     }).start(() => {
-      // Navigate to Splash Screen after animation
-      setTimeout(() => {
-        router.push('Splash'); // Replace to Splash Screen
-      }, 2000); // Delay for 2 seconds
+      // Check if user is logged in or not after animation
+      setTimeout(async () => {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          // If user is logged in, navigate to Home page
+          router.push('/Home');
+        } else {
+          // If user is not logged in, navigate to Splash page
+          router.push('/Splash');
+        }
+      }, 2000); // Delay for 2 seconds after animation
     });
   }, []);
 
@@ -55,8 +64,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    height: 200,
-    width: 200,
+    height: 230,
+    width: 230,
     borderRadius: 100, // Make the image circular
     borderWidth: 5, // Add a border
     borderColor: '#FB8500', // Set border color

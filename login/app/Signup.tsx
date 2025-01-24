@@ -1,24 +1,32 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase.config";
-import { useRouter } from "expo-router"; // import expo-router's useRouter
+import { ref, set } from "firebase/database";
+import { auth, database } from "../firebase.config";
+import { useRouter } from "expo-router";
 
 const SignupScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); // Initialize router
+  const [username, setUsername] = useState(""); // New state for username
+  const router = useRouter();
 
   const handleSignup = () => {
-    if (!email || !password) {
+    if (!email || !password || !username) {
       Alert.alert("Error", "Please fill in all fields!");
       return;
     }
 
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then((userCredential) => {
+        const userId = userCredential.user.uid;
+        const userRef = ref(database, `users/${userId}`);
+        set(userRef, {
+          email,
+          username, // Save username in the database
+        });
         Alert.alert("Success", "Account created successfully!");
-        router.push("/login"); // Navigate to the Login screen
+        router.push("/Login");
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -28,6 +36,13 @@ const SignupScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create an Account</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        placeholderTextColor="#A8DADC"
+        value={username}
+        onChangeText={setUsername}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -54,6 +69,7 @@ const SignupScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
