@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Image, View, Animated } from 'react-native';
 import { useRouter } from 'expo-router'; // Make sure to import the useRouter hook
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from 'react-native';
 
 const logo = require('../assets/images/logo.png');
 
@@ -32,6 +33,7 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'black'} barStyle={'light-content'}/>
       <Animated.View
         style={[
           styles.logoContainer,

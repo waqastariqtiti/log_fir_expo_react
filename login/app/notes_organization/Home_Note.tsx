@@ -1,9 +1,13 @@
+// app/home.tsx
+
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native'; // Ensure Text is imported
 import { Ionicons } from '@expo/vector-icons'; // For icon
+import { useRouter } from 'expo-router'; // Import for navigation
 
 const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const router = useRouter(); // Initialize router for navigation
 
   return (
     <View style={styles.container}>
@@ -31,10 +35,13 @@ const HomeScreen = () => {
         />
       </View>
 
-      {/* Add Note Card Section */}
-      <View style={styles.cardContainer}>
-        <Text style={styles.cardText}>Add Note</Text>
-      </View>
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/notes_organization/add&delete')} // Navigate to Add & Delete Note page
+      >
+        <Ionicons name="add" size={30} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -76,24 +83,21 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
   },
-  // New Card Styles
-  cardContainer: {
-    flex: 1,
-    justifyContent: 'center', // Centering the card vertically
-    alignItems: 'center', // Centering the card horizontally
-    backgroundColor: '#fff',
-    margin: 20,
-    borderRadius: 10,
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: 'rgb(2, 48, 71)', // Floating action button color
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5, // Shadow effect for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-  },
-  cardText: {
-    fontSize: 18,
-    color: '#333',
-    fontWeight: 'bold',
   },
 });
 

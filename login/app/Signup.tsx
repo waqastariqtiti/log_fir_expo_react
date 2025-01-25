@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  StatusBar,
+} from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { auth, database } from "../firebase.config";
@@ -20,21 +28,33 @@ const SignupScreen = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const userId = userCredential.user.uid;
+        console.log("User ID:", userId); // Debug User ID
+        console.log("Saving to database...");
+
         const userRef = ref(database, `users/${userId}`);
         set(userRef, {
-          email,
-          username, // Save username in the database
-        });
-        Alert.alert("Success", "Account created successfully!");
-        router.push("/Login");
+          email: email,
+          username: username,
+        })
+          .then(() => {
+            console.log("Data saved successfully!");
+            Alert.alert("Success", "Account created successfully!");
+            router.push("/Login");
+          })
+          .catch((dbError) => {
+            console.error("Database Error:", dbError);
+            Alert.alert("Database Error", dbError.message);
+          });
       })
-      .catch((error) => {
-        Alert.alert("Error", error.message);
+      .catch((authError) => {
+        console.error("Authentication Error:", authError);
+        Alert.alert("Authentication Error", authError.message);
       });
   };
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'black'} barStyle={'light-content'}/>
       <Text style={styles.title}>Create an Account</Text>
       <TextInput
         style={styles.input}
@@ -43,6 +63,7 @@ const SignupScreen = () => {
         value={username}
         onChangeText={setUsername}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -69,7 +90,6 @@ const SignupScreen = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

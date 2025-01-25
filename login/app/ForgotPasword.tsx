@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert,StatusBar } from "react-native";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useRouter } from "expo-router"; // import expo-router's useRouter
@@ -26,6 +26,7 @@ const ForgotPassword = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'black'} barStyle={'light-content'}/>
       <Text style={styles.title}>Forgot Password</Text>
       <TextInput
         style={styles.input}

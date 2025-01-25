@@ -5,6 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker"; // For picking the user's profile image
 
 const organi = require('../assets/images/note.png'); 
+const Stud = require('../assets/images/Study.png'); 
+const Friends = require('../assets/images/Group_Chat.png'); // New image for friends icon
+const Chat = require('../assets/images/Event.png'); // New image for chat icon
+
 
 const HomeScreen = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null); // State for profile image
@@ -37,73 +41,128 @@ const HomeScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={toggleDropdown} style={styles.listIconContainer}>
-            <Ionicons name="list-outline" size={24} color="rgb(142, 202, 230)" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>UniBuddy</Text>
-        </View>
-        
-        {/* Profile Image in the top right */}
-        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.profileImageContainer}>
-          <Image
-            source={profileImage ? { uri: profileImage } : { uri: "https://static.vecteezy.com/system/resources/previews/003/715/527/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-vector.jpg" }} // Placeholder image
-            style={styles.profileImage}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Dropdown Section */}
-      {dropdownVisible && (
-        <View style={styles.dropdown}>
-          <TouchableOpacity style={styles.dropdownItem}>
-            <Ionicons name="notifications-outline" size={20} color="rgb(33, 158, 188)" />
-            <Text style={styles.dropdownText}>Notifications</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.dropdownItem}>
-            <Ionicons name="settings-outline" size={20} color="rgb(33, 158, 188)" />
-            <Text style={styles.dropdownText}>Settings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.dropdownItem}>
-            <Ionicons name="log-out-outline" size={20} color="rgb(33, 158, 188)" />
-            <Text style={styles.dropdownText}>Logout</Text>
+    <View style={styles.container}>
+      <ScrollView style={styles.mainContent}>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={toggleDropdown} style={styles.listIconContainer}>
+              <Ionicons name="list-outline" size={24} color="rgb(142, 202, 230)" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>UniBuddy</Text>
+          </View>
+          
+          {/* Profile Image in the top right */}
+          <TouchableOpacity onPress={() => router.push('/profile')} style={styles.profileImageContainer}>
+            <Image
+              source={profileImage ? { uri: profileImage } : { uri: "https://static.vecteezy.com/system/resources/previews/003/715/527/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-vector.jpg" }} // Placeholder image
+              style={styles.profileImage}
+            />
           </TouchableOpacity>
         </View>
-      )}
 
-      {/* Short Links Section */}
-      <View style={styles.shortLinks}>
-        <Link href="bla">
+        {/* Dropdown Section */}
+        {dropdownVisible && (
+          <View style={styles.dropdown}>
+            <TouchableOpacity style={styles.dropdownItem}>
+              <Ionicons name="notifications-outline" size={20} color="rgb(33, 158, 188)" />
+              <Text style={styles.dropdownText}>Notifications</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dropdownItem}>
+              <Ionicons name="settings-outline" size={20} color="rgb(33, 158, 188)" />
+              <Text style={styles.dropdownText}>Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dropdownItem}>
+              <Ionicons name="log-out-outline" size={20} color="rgb(33, 158, 188)" />
+              <Text style={styles.dropdownText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Short Links Section */}
+        <View style={styles.shortLinks}>
+          <Link href="bla">
+            <TouchableOpacity style={styles.link}>
+              <Ionicons name="document-text-outline" size={20} color="rgb(33, 158, 188)" />
+              <Text style={styles.linkText}>My Notes</Text>
+            </TouchableOpacity>
+          </Link>
           <TouchableOpacity style={styles.link}>
-            <Ionicons name="document-text-outline" size={20} color="rgb(33, 158, 188)" />
-            <Text style={styles.linkText}>My Notes</Text>
+            <Ionicons name="heart-outline" size={20} color="rgb(33, 158, 188)" />
+            <Text style={styles.linkText}>Favorite Notes</Text>
           </TouchableOpacity>
-        </Link>
-        <TouchableOpacity style={styles.link}>
-          <Ionicons name="heart-outline" size={20} color="rgb(33, 158, 188)" />
-          <Text style={styles.linkText}>Favorite Notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.link}>
-          <Ionicons name="help-circle-outline" size={20} color="rgb(33, 158, 188)" />
-          <Text style={styles.linkText}>Help</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.link}>
+            <Ionicons name="help-circle-outline" size={20} color="rgb(33, 158, 188)" />
+            <Text style={styles.linkText}>Help</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Main Section */}
-      <View style={styles.card}>
-        <Image source={organi} style={styles.cardImage} />
-        <Text style={styles.cardTitle}>Note Organization</Text>
-        <Text style={styles.cardDescription}>
-          Keep your notes well-organized and accessible with our powerful features.
-        </Text>
-        <Link href="./notes_organization/Home_Note" style={styles.button}>
-          <Text style={styles.buttonText}>Learn More</Text>
-        </Link>
+        {/* Main Section with 4 Cards */}
+        <View style={styles.card}>
+          <Image source={organi} style={styles.cardImage} />
+          <Text style={styles.cardTitle}>Note Organization</Text>
+          <Text style={styles.cardDescription}>
+            Keep your notes well-organized and accessible with our powerful features.
+          </Text>
+          <Link href="./notes_organization/Home_Note" style={styles.button}>
+            <Text style={styles.buttonText}>Learn More</Text>
+          </Link>
+        </View>
+
+        <View style={styles.card}>
+          <Image source={Stud} style={styles.cardImage} />
+          <Text style={styles.cardTitle}>Study Timer</Text>
+          <Text style={styles.cardDescription}>
+          Study Timer: Efficiently manage your study sessions with customizable timers, ensuring productive and focused learning periods.
+          </Text>
+          <Link href="./Study_timer/Home_Study.tsx" style={styles.button}>
+            <Text style={styles.buttonText}>Learn More</Text>
+          </Link>
+        </View>
+
+        <View style={styles.card}>
+          <Image source={Friends} style={styles.cardImage} />
+          <Text style={styles.cardTitle}>Group_Chats</Text>
+          <Text style={styles.cardDescription}>
+          Group Chats: Seamlessly connect, collaborate, and communicate with multiple people in real-time, all in one place
+          </Text>
+          <Link href="./friends/Home_Friends" style={styles.button}>
+            <Text style={styles.buttonText}>Learn More</Text>
+          </Link>
+        </View>
+
+        <View style={styles.card}>
+          <Image source={Chat} style={styles.cardImage} />
+          <Text style={styles.cardTitle}>Event_Planer</Text>
+          <Text style={styles.cardDescription}>
+          Event Planner: Effortlessly organize and manage your events with intuitive tools for scheduling, coordination, and seamless execution.
+          </Text>
+          <Link href="./chat/Home_Chat" style={styles.button}>
+            <Text style={styles.buttonText}>Learn More</Text>
+          </Link>
+        </View>
+      </ScrollView>
+
+      {/* Footer Section */}
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerLink}>
+          <Ionicons name="people-outline" size={30} color="rgb(33, 158, 188)" />
+          <Text style={styles.footerLinkText}>Friends</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerLink}>
+          <Ionicons name="chatbubble-outline" size={30} color="rgb(33, 158, 188)" />
+          <Text style={styles.footerLinkText}>Chat</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerLink}>
+          <Ionicons name="musical-note-outline" size={30} color="rgb(33, 158, 188)" />
+          <Text style={styles.footerLinkText}>Music</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerLink}>
+          <Ionicons name="map-outline" size={30} color="rgb(33, 158, 188)" />
+          <Text style={styles.footerLinkText}>Map</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -111,6 +170,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "rgb(242, 242, 242)",  // Light gray background
+  },
+  mainContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: "rgb(2, 48, 71)",  // Dark greenish color for header
@@ -120,7 +182,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingTop: 10,
-    height:70, // Adding some padding to make space at the top
+    height: 70, // Adding some padding to make space at the top
   },
   headerLeft: {
     flexDirection: "row",  // Align text and icon horizontally
@@ -219,6 +281,25 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+
+  footer: {
+    backgroundColor: "rgb(2, 48, 71)",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    height: 70,
+    paddingBottom: 10,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
+  footerLink: {
+    alignItems: "center",
+  },
+  footerLinkText: {
+    color: "rgb(33, 158, 188)",
+    fontSize: 12,
   },
 });
 

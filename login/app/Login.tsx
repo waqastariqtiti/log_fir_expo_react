@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert,StatusBar } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useRouter } from "expo-router"; // import expo-router's useRouter
@@ -33,6 +33,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'black'} barStyle={'light-content'}/>
       <Text style={styles.title}>Welcome Back!</Text>
       <TextInput
         style={styles.input}

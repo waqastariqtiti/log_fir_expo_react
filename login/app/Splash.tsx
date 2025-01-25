@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, StatusBar } from "react-native";
 import { useRouter } from "expo-router"; // Import Expo Router's useRouter
 
 export default function IndexPage() {
@@ -6,6 +6,7 @@ export default function IndexPage() {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'black'} barStyle={'light-content'}/>
       <Text style={styles.title}>Welcome to My Website</Text>
       <Text style={styles.subtitle}>Please choose an option to get started</Text>
       <View style={styles.buttonContainer}>

@@ -1,165 +1,224 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, Modal, ActivityIndicator } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { ref, get, set } from "firebase/database";
-import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
-import { storage, database } from "../firebase.config";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { ref, get } from "firebase/database";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { auth, database } from "../firebase.config";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
-const UserProfilePage = () => {
+const UserProfilePage = ({ navigation }: { navigation: any }) => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [username, setUsername] = useState("Loading...");
-  const [friendsCount, setFriendsCount] = useState(5);
-  const [groupsCount, setGroupsCount] = useState(3);
-  const [loading, setLoading] = useState(false);
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [groupsCount, setGroupsCount] = useState(0);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const userId = "fTfg5soFMvf2wUv4EUCDsyUiaKi2"; // Replace with actual logged-in user's ID
-
-  // Fetch user data on component mount
   useEffect(() => {
-    const fetchUserData = async () => {
-      const userRef = ref(database, `users/${userId}`);
-      try {
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setUsername(data.username || "No username");
-          setProfileImage(data.profileImage || null);
-        }
-      } catch (error) {
-        Alert.alert("Error", "Failed to fetch user data.");
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchUserData(user.uid);
+      } else {
+        Alert.alert("Error", "No user signed in!");
       }
-    };
-
-    fetchUserData();
+    });
+    return unsubscribe; // Cleanup listener on unmount
   }, []);
 
-  // Function to pick an image
-  const pickImage = async () => {
+  const fetchUserData = async (userId: string) => {
+    const userRef = ref(database, `users/${userId}`);
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permissionResult.granted) {
-        Alert.alert("Permission Denied", "Permission to access the media library is required!");
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        setProfileImage(result.assets[0].uri);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setUsername(data.username || "No username");
+        setProfileImage(data.profileImage || null);
+        setFriendsCount(data.friendsCount || 0);
+        setGroupsCount(data.groupsCount || 0);
+      } else {
+        Alert.alert("Error", "User data not found.");
       }
     } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Error", "Something went wrong while picking the image.");
+      console.error("Error fetching user data:", error);
+      Alert.alert("Error", "Failed to fetch user data.");
     }
   };
 
-  // Function to upload the image
-  const uploadImage = async () => {
-    if (!profileImage) {
-      Alert.alert("Error", "Please select a profile image first.");
-      return;
-    }
-
-    setLoading(true);
+  const handleLogout = async () => {
     try {
-      const response = await fetch(profileImage);
-      const blob = await response.blob();
-
-      const fileName = `profile_images/${Date.now()}.jpg`;
-      const imageRef = storageRef(storage, fileName);
-
-      await uploadBytes(imageRef, blob);
-      const downloadURL = await getDownloadURL(imageRef);
-
-      const userRef = ref(database, `users/${userId}`);
-      await set(userRef, {
-        username: username,
-        profileImage: downloadURL,
-      });
-
-      Alert.alert("Success", "Profile image uploaded successfully!");
+      await signOut(auth);
+      router.push("/Login");
+      Alert.alert("Success", "You have been logged out.");
     } catch (error) {
-      console.error("Error uploading image:", error);
-      Alert.alert("Error", "Failed to upload the profile image.");
-    } finally {
-      setLoading(false);
+      Alert.alert("Error", "Failed to log out.");
+    }
+  };
+
+  const handleScreenPress = () => {
+    if (dropdownVisible) {
+      setDropdownVisible(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileSection}>
-        <View style={styles.imageContainer}>
-          <TouchableOpacity onPress={pickImage}>
+    <TouchableWithoutFeedback onPress={handleScreenPress}>
+      <View style={styles.container}>
+        {/* Dropdown Menu */}
+        {dropdownVisible && (
+          <View style={styles.dropdown}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Profile Section */}
+        <View style={styles.profileSection}>
+          <TouchableOpacity
+            onPress={() => setDropdownVisible(!dropdownVisible)}
+            style={styles.dropdownTrigger}
+          >
+            <Text style={styles.userName}>{username} ▼</Text>
+          </TouchableOpacity>
+          <View style={styles.profileInfo}>
             <Image
-              source={profileImage ? { uri: profileImage } : { uri: "https://placekitten.com/200/200" }}
+              source={
+                profileImage
+                  ? { uri: profileImage }
+                  : {
+                      uri: "https://static.vecteezy.com/system/resources/previews/003/715/527/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-vector.jpg",
+                    }
+              }
               style={styles.profileImage}
             />
+            <View>
+              <Text style={styles.userHandle}>@{username}</Text>
+              <Text style={styles.userStats}>
+                Friends: {friendsCount} &nbsp;&nbsp;&nbsp; Groups: {groupsCount}
+              </Text>
+            </View>
+          </View>
+          {/* Description Bar */}
+          <View style={styles.descriptionBar}>
+            <Text style={styles.descriptionText}>No description</Text>
+          </View>
+        </View>
+
+        {/* Buttons */}
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push("editProf")}
+          >
+            <Text style={styles.buttonText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shareButton}>
+            <Text style={styles.buttonText}>Share Profile</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.infoContainer}>
-          <Text style={styles.userName}>{username}</Text>
-          <Text style={styles.friendsGroups}>
-            {friendsCount} Friends | {groupsCount} Groups
-          </Text>
+
+        {/* Navbar */}
+        <View style={styles.navbar}>
+          <TouchableOpacity style={styles.navIcon}>
+            <Ionicons name="document-text" size={30} color="#023047" />
+            <Text style={styles.navLabel}>Notes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navIcon}>
+            <Ionicons name="image" size={30} color="#023047" />
+            <Text style={styles.navLabel}>Media</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navIcon}>
+            <Ionicons name="musical-notes" size={30} color="#023047" />
+            <Text style={styles.navLabel}>Music</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      {loading && <ActivityIndicator size="large" color="#218EC0" />}
-
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.editButton} onPress={uploadImage}>
-          <Text style={styles.buttonText}>Upload Image</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.shareButton}>
-          <Text style={styles.buttonText}>Share Profile</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#8ECAE6", // Background color
-    padding: 20,
+    backgroundColor: "#8ECAE6",
+    padding: 10,
   },
   profileSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 30,
+    marginTop: 20,
+    position: "relative",
   },
-  imageContainer: {
-    flex: 1,
-    alignItems: "center",
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#023047",
-  },
-  infoContainer: {
-    flex: 2,
-    marginLeft: 20,
+  dropdownTrigger: {
+    position: "absolute",
+    top: 0,
+    left: 10,
   },
   userName: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#023047",
+    marginTop: 0,
   },
-  friendsGroups: {
+  profileInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 40,
+  },
+  profileImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: "#023047",
+  },
+  userHandle: {
     fontSize: 16,
-    color: "#219EBC",
+    color: "#023047",
+    marginLeft: 10,
+  },
+  userStats: {
+    fontSize: 14,
+    color: "#023047",
+    marginLeft: 10,
     marginTop: 5,
+  },
+  descriptionBar: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#8ECAE6",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: "#023047",
+  },
+  dropdown: {
+    position: "absolute",
+    top: 30,
+    left: 10,
+    backgroundColor: "#FFB703",
+    borderRadius: 10,
+    padding: 10,
+    elevation: 5,
+    zIndex: 100,
+  },
+  logoutButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    backgroundColor: "#FFB703",
+  },
+  logoutText: {
+    color: "red",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -186,6 +245,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  navbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+    paddingVertical: 10,
+    backgroundColor: "#8ECAE6",
+    borderTopWidth: 1,
+    borderColor: "#023047",
+  },
+  navIcon: {
+    alignItems: "center",
+  },
+  navLabel: {
+    marginTop: 5,
+    fontSize: 12,
+    color: "#023047",
   },
 });
 
